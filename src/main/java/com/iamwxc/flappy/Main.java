@@ -1,3 +1,6 @@
+package com.iamwxc.flappy;
+
+import com.iamwxc.flappy.input.Input;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
@@ -11,7 +14,16 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-public class HelloWorld {
+/**
+ * Class description goes here.
+ * <p>
+ * If you see this sentence, nothing ambiguous.
+ * </p>
+ *
+ * @author CC
+ * @version 1.0
+ */
+public class Main implements Runnable {
 
     // The window handle
     private long window;
@@ -46,15 +58,12 @@ public class HelloWorld {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
         // Create the window
-        window = glfwCreateWindow(900, 900, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow(1280, 720, "flappy", NULL, NULL);
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
 
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
-        glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
-                glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
-        });
+        glfwSetKeyCallback(window, new Input());
 
         // Get the thread stack and push a new frame
         try ( MemoryStack stack = stackPush() ) {
@@ -84,6 +93,17 @@ public class HelloWorld {
         glfwShowWindow(window);
     }
 
+    private void update() {
+        if (Input.keys[GLFW_KEY_ESCAPE])
+            glfwSetWindowShouldClose(window, true);
+        if (Input.keys[GLFW_KEY_SPACE])
+            System.out.println("FLAP!");
+    }
+
+    private void render() {
+        glfwSwapBuffers(window);
+    }
+
     private void loop() {
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
@@ -92,16 +112,11 @@ public class HelloWorld {
         // bindings available for use.
         GL.createCapabilities();
 
-        // Set the clear color
-        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window) ) {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
-            glfwSwapBuffers(window); // swap the color buffers
-
+            update();
+            render();
             // Poll for window events. The key callback above will only be
             // invoked during this call.
             glfwPollEvents();
@@ -109,7 +124,7 @@ public class HelloWorld {
     }
 
     public static void main(String[] args) {
-        new HelloWorld().run();
+        new Main().run();
     }
 
 }
