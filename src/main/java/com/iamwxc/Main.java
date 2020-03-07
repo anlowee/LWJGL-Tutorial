@@ -1,6 +1,5 @@
-package com.iamwxc.flappy;
+package com.iamwxc;
 
-import com.iamwxc.flappy.input.Input;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
@@ -10,7 +9,7 @@ import java.nio.*;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL46.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -58,12 +57,9 @@ public class Main implements Runnable {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
         // Create the window
-        window = glfwCreateWindow(1280, 720, "flappy", NULL, NULL);
+        window = glfwCreateWindow(720, 720, "simple", NULL, NULL);
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
-
-        // Setup a key callback. It will be called every time a key is pressed, repeated or released.
-        glfwSetKeyCallback(window, new Input());
 
         // Get the thread stack and push a new frame
         try ( MemoryStack stack = stackPush() ) {
@@ -94,14 +90,23 @@ public class Main implements Runnable {
     }
 
     private void update() {
-        if (Input.keys[GLFW_KEY_ESCAPE])
-            glfwSetWindowShouldClose(window, true);
-        if (Input.keys[GLFW_KEY_SPACE])
-            System.out.println("FLAP!");
+        glShadeModel(GL_SMOOTH);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
     }
 
     private void render() {
-        glfwSwapBuffers(window);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glBegin(GL_POLYGON);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glVertex3f(-0.5f, -0.5f, 0.0f);
+        glVertex3f(-0.5f, 0.5f, 0.0f);
+        glVertex3f(0.5f, 0.5f, 0.0f);
+        glVertex3f(0.5f, -0.5f, 0.0f);
+        glEnd();
+        glFlush();
     }
 
     private void loop() {
@@ -117,6 +122,7 @@ public class Main implements Runnable {
         while ( !glfwWindowShouldClose(window) ) {
             update();
             render();
+            glfwSwapBuffers(window);    // swap the color buffers
             // Poll for window events. The key callback above will only be
             // invoked during this call.
             glfwPollEvents();
