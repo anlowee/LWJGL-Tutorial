@@ -98,13 +98,17 @@ public class Main implements Runnable {
 
     private void render() {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);    // set background color
+        // draw convex polygon clockwise
         glBegin(GL_POLYGON);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex3f(0.0f, -0.5f, 0.0f);
+        glColor3f(0.0f, 1.0f, 0.0f);
+        glVertex3f(-0.5f, 0.0f, 0.0f);
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glVertex3f(0.0f, 0.5f, 0.0f);
         glColor3f(1.0f, 1.0f, 1.0f);
-        glVertex3f(-0.5f, -0.5f, 0.0f);
-        glVertex3f(-0.5f, 0.5f, 0.0f);
-        glVertex3f(0.5f, 0.5f, 0.0f);
-        glVertex3f(0.5f, -0.5f, 0.0f);
+        glVertex3f(0.5f, 0.0f, 0.0f);
         glEnd();
         glFlush();
     }
