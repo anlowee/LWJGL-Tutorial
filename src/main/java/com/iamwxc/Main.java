@@ -6,6 +6,7 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
 import java.nio.*;
+import java.util.Random;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -90,26 +91,77 @@ public class Main implements Runnable {
     }
 
     private void update() {
-        glShadeModel(GL_SMOOTH);
-        glMatrixMode(GL_PROJECTION);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
     }
 
+    /**
+     * recursive generation triangle
+     * @param v first vertex
+     * @param v1 second vertex
+     * @param v2 third vertex
+     * @param v3 forth vertex
+     * @param n recursive times
+     */
+    private void divideTetra(float[] v, float[] v1, float[] v2, float[] v3, int n) {
+        if (n <= 0) {
+            glColor3f(1.0f, 0.0f, 0.0f);
+            glBegin(GL_POLYGON);
+            glVertex3fv(v);
+            glVertex3fv(v1);
+            glVertex3fv(v2);
+            glEnd();
+            glColor3f(0.0f, 1.0f, 0.0f);
+            glBegin(GL_POLYGON);
+            glVertex3fv(v);
+            glVertex3fv(v1);
+            glVertex3fv(v3);
+            glEnd();
+            glColor3f(0.0f, 0.0f, 1.0f);
+            glBegin(GL_POLYGON);
+            glVertex3fv(v);
+            glVertex3fv(v2);
+            glVertex3fv(v3);
+            glEnd();
+            glColor3f(0.0f, 0.0f, 0.0f);
+            glBegin(GL_POLYGON);
+            glVertex3fv(v1);
+            glVertex3fv(v2);
+            glVertex3fv(v3);
+            glEnd();
+            return;
+        }
+        float[] a = new float[3];
+        float[] b = new float[3];
+        float[] c = new float[3];
+        float[] d = new float[3];
+        float[] e = new float[3];
+        float[] f = new float[3];
+        for (int i =0; i < 3; i++) {
+            a[i] = (float) ((v[i] + v1[i]) / 2.0);
+            b[i] = (float) ((v1[i] + v2[i]) / 2.0);
+            c[i] = (float) ((v2[i] + v[i]) / 2.0);
+            d[i] = (float) ((v[i] + v3[i]) / 2.0);
+            e[i] = (float) ((v1[i] + v3[i]) / 2.0);
+            f[i] = (float) ((v2[i] + v3[i]) / 2.0);
+        }
+        divideTetra(v, a, c, d, n - 1);
+        divideTetra(a, v1, b, e, n - 1);
+        divideTetra(c, b, v2, f, n - 1);
+        divideTetra(d, e, f, v3, n - 1);
+    }
+
     private void render() {
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);    // set background color
-        // draw convex polygon clockwise
-        glBegin(GL_POLYGON);
-        glColor3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(0.0f, -0.5f, 0.0f);
-        glColor3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(-0.5f, 0.0f, 0.0f);
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glVertex3f(0.0f, 0.5f, 0.0f);
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glVertex3f(0.5f, 0.0f, 0.0f);
-        glEnd();
+        float[][] vertices = new float[4][3];
+        vertices[0][0] = 0.0f; vertices[0][1] = 0.0f; vertices[0][2] = 1.0f;
+        vertices[1][0] = 0.0f; vertices[1][1] = 0.942809f; vertices[1][2] = -0.33333f;
+        vertices[2][0] = -0.816497f; vertices[2][1] = -0.471405f; vertices[2][2] = -0.333333f;
+        vertices[3][0] = 0.816497f; vertices[3][1] = -0.471405f; vertices[3][2] = -0.333333f;
+        divideTetra(vertices[0], vertices[1], vertices[2], vertices[3], 3);
         glFlush();
     }
 
